@@ -97,6 +97,17 @@
             font-size: 12px;
             border-radius: 4px;
         }
+        .error-message {
+            background: #ff0000;
+            color: #fff;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -111,6 +122,7 @@
 
         <div class="pattern-editor">
             <h2>Pattern Editor</h2>
+            <div id="errorMessage" class="error-message"></div>
             <textarea id="pattern">note("c3 eb3 g3 [bb3 c4]")
   .s("sawtooth")
   .lpf(sine.range(400, 2000).slow(8))
@@ -199,46 +211,50 @@
         const playBtn = document.getElementById('playBtn');
         const stopBtn = document.getElementById('stopBtn');
         const evalBtn = document.getElementById('evalBtn');
+        const errorMessage = document.getElementById('errorMessage');
 
         // Initialize Strudel
         const { evaluate, stop } = repl({
             defaultOutput: 'webaudio',
         });
 
-        // Play button
-        playBtn.addEventListener('click', async () => {
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = 'Error: ' + message;
+            errorMessage.classList.add('show');
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
+
+        // Shared evaluation function
+        async function evaluatePattern() {
             const code = patternInput.value;
             try {
                 playBtn.disabled = true;
+                errorMessage.classList.remove('show');
                 await evaluate(code);
                 playBtn.textContent = '▶ Playing...';
             } catch (error) {
-                console.error('Error playing pattern:', error);
-                alert('Error: ' + error.message);
+                console.error('Error evaluating pattern:', error);
+                showError(error.message);
                 playBtn.disabled = false;
             }
-        });
+        }
+
+        // Play button
+        playBtn.addEventListener('click', evaluatePattern);
 
         // Stop button
         stopBtn.addEventListener('click', () => {
             stop();
             playBtn.disabled = false;
             playBtn.textContent = '▶ Play';
+            errorMessage.classList.remove('show');
         });
 
         // Evaluate button (same as play)
-        evalBtn.addEventListener('click', async () => {
-            const code = patternInput.value;
-            try {
-                playBtn.disabled = true;
-                await evaluate(code);
-                playBtn.textContent = '▶ Playing...';
-            } catch (error) {
-                console.error('Error evaluating pattern:', error);
-                alert('Error: ' + error.message);
-                playBtn.disabled = false;
-            }
-        });
+        evalBtn.addEventListener('click', evaluatePattern);
 
         // Load examples
         document.querySelectorAll('.example').forEach(example => {
