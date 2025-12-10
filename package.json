@@ -1,0 +1,19 @@
+{
+  "name": "noise",
+  "version": "1.0.0",
+  "description": "A live coding environment for generative music using Strudel",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node example.js",
+    "test": "node example.js"
+  },
+  "keywords": ["strudel", "live-coding", "music", "noise", "generative"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@strudel/core": "^1.2.5",
+    "@strudel/mini": "^1.2.5",
+    "@strudel/webaudio": "^1.2.6"
+  }
+}
